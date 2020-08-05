@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCBBS Extender-Core
 // @namespace    https://i.zapic.cc
-// @version      beta-2.0.0
+// @version      v2.0.1-beta
 // @description  MCBBS模块化优化框架
 // @author       Zapic
 // @match        https://*.mcbbs.net/*
@@ -311,7 +311,7 @@
         "core": () => {
             if (typeof unsafeWindow.MExt.ValueStorage.get("LastVersion") == "undefined") {
                 unsafeWindow.MExt.ValueStorage.set("LastVersion", unsafeWindow.MExt.versionCode);
-                showDialog("<b>欢迎使用MCBBS Extender</b>.<br>本脚本的设置按钮已经放进入了您的个人信息菜单里,如需调整设置请在个人信息菜单里查看.", "right", "欢迎", () => {
+                showDialog("<b>欢迎使用MCBBS Extender</b>.<br>脚本本身不包含任何功能,请到<a href=\"https://github.com/Proj-MExt/Modules-Repo\">模块仓库</a>寻找模块.<br>设置按钮已经放进入了您的个人信息菜单里,如需调整设置请在个人信息菜单里查看.", "right", "欢迎", () => {
                     showMenu('user_info');
                     unsafeWindow.MExt.jQuery("#MExt_config").css("background-color", "#E91E63").css("color", "#fff");
                     setTimeout(() => {
