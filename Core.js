@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         MCBBS Extender
+// @name         MCBBS Extender-Core
 // @namespace    https://i.zapic.cc
 // @version      beta-2.0.0
 // @description  MCBBS行为拓展/样式修复
