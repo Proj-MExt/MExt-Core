@@ -2,7 +2,7 @@
 // @name         MCBBS Extender-Core
 // @namespace    https://i.zapic.cc
 // @version      beta-2.0.0
-// @description  MCBBS行为拓展/样式修复
+// @description  MCBBS模块化优化框架
 // @author       Zapic
 // @match        https://*.mcbbs.net/*
 // @run-at       document-body
