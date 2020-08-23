@@ -305,7 +305,7 @@
 // Update Manager
 (() => {
     let updatelist = [
-        "1. 代码重构,现已模块化."
+        "1. 新增 开发事件API,为某些用户交互触发事件(如打开评分窗口)."
     ];
     unsafeWindow.MExt.exportModule({
         "core": () => {
@@ -330,4 +330,109 @@
             unsafeWindow.MExt.ValueStorage.set("LastVersion", unsafeWindow.MExt.versionCode);
         }
     });
+})();
+
+// Observer
+(() => {
+    let $ = unsafeWindow.MExt.jQuery;
+    let removeHandler = (r) => {
+        switch(r.target.nodeName){
+            case "TBODY":
+                if(typeof r.target.id != "undefined"){
+                    if(r.target.id.lastIndexOf("normalthread_") >= 0){
+                        $(r.target).trigger("ThreadPreviewClosed");
+                    }
+                }
+                break;
+            case "DIV":
+                if(typeof r.target.id != 'undefined' && r.target.id.lastIndexOf("threadPreview_") >= 0){
+                    if(r.removedNodes[0].nodeName == "SPAN" && r.removedNodes[0].innerText == " 请稍候..."){
+                        $(r.target).trigger("ThreadPreviewOpened");
+                    }
+                } else if(r.removedNodes.length >=3 && r.target.id.lastIndexOf("post_") >= 0){
+                    if(r.removedNodes[0].nodeName == "A" && r.removedNodes[0].name == "newpost" && r.removedNodes[0].parentNode != null){
+                        $(r.target).trigger("ThreadFlushStarted");
+                    }
+                } else if(r.target.id == "append_parent"){
+                    if(r.removedNodes[0].nodeName == "DIV"){
+                        if( r.removedNodes[0].id == "fwin_rate"){
+                            $(r.target).trigger("RateWindowClosed");
+                        } else if( r.removedNodes[0].id == "fwin_reply"){
+                            $(r.target).trigger("ReplyWindowClosed");
+                        } else if( typeof r.removedNodes[0].id != 'undefined' && r.removedNodes[0].id.lastIndexOf("fwin_miscreport") >= 0 ){
+                            console.log("Report window closed.");
+                            $(r.target).trigger("ReportWindowClosed");
+                        }
+                    }
+                }
+                break;
+        }
+    }
+    let addHandler = (r) => {
+        switch(r.target.nodeName){
+            case "DIV":
+                if(typeof r.target.id != "undefined"){
+                    if(r.target.id.lastIndexOf("threadPreview_") >= 0){
+                        if(r.addedNodes[0].nodeName == "SPAN" && r.addedNodes[0].innerText == " 请稍候..."){
+                            $(r.target).trigger("ThreadPreviewPreOpen");
+                        }
+                    }else if(r.addedNodes.length >= 3 && r.target.id.lastIndexOf("post_") >= 0){
+                        if(r.addedNodes[0].nodeName == "A" && r.addedNodes[0].name == "newpost" && r.addedNodes[0].parentNode != null){
+                            $(r.target).trigger("ThreadFlushFinished");
+                        }
+                    }else if(r.target.id == "append_parent"){
+                        if(r.addedNodes[0].nodeName == "DIV"){
+                            if(r.addedNodes[0].id == "fwin_rate"){
+                                $(r.addedNodes[0]).trigger("RateWindowPreOpen");
+                            } else if (r.addedNodes[0].id == "fwin_reply"){
+                                $(r.addedNodes[0]).trigger("ReplyWindowPreOpen");
+                            } else if (typeof r.addedNodes[0].id != 'undefined' && r.addedNodes[0].id.lastIndexOf("fwin_miscreport") >= 0){
+                                $(r.addedNodes[0]).trigger("ReportWindowPreOpen");
+                            }
+                        }
+                    } else if(r.target.id === "") {
+                        if(r.target.parentElement !=null && r.target.parentElement == "postlistreply"){
+                            $(r.target).trigger("NewReplyAppended");
+                        }
+                    }
+                }
+                break;
+            case "A":
+                if(r.addedNodes[0].nodeName == "#text"){
+                    if(r.addedNodes[0].nodeValue == "正在加载, 请稍后...") {
+                        console.log(r.target).trigger("ThreadsListLoadStart");
+                    } else if(r.addedNodes[0].nodeValue == "下一页 »") {
+                        console.log(r.target).trigger("ThreadsListLoadFinished");
+                    }
+                }
+                break;
+            case "TD":
+                if(r.target.id == "fwin_content_rate" && r.addedNodes[0].nodeName == "DIV" && r.addedNodes[0].id == "floatlayout_topicadmin" ){
+                    $(r.target).trigger("RateWindowOpened");
+                }
+                if(r.target.id == "fwin_content_reply" && r.addedNodes[0].nodeName == "H3" && r.addedNodes[0].id == "fctrl_reply" ){
+                    $(r.target).trigger("ReplyWindowOpened");
+                }
+                if(typeof r.target.id != 'undefined' && r.target.id.lastIndexOf("fwin_content_miscreport") >= 0 && r.addedNodes[0].nodeName == "H3" && r.addedNodes[0].id.lastIndexOf("fctrl_miscreport") >= 0){
+                    $(r.target).trigger("ReportWindowOpened");
+                }
+                break;
+        }
+    }
+    let mainHandler = (r) => {
+        if(r.type == "childList"){
+            if(r.addedNodes.length > 0){
+                addHandler(r);
+            }
+            if(r.removedNodes.length > 0){
+                removeHandler(r);
+            }
+        }
+    }
+    let O = new MutationObserver((e,f)=>{
+        for(let record of e){
+            mainHandler(record);
+        }
+    });
+    O.observe(document.body,{ childList: true, subtree: true });
 })();
