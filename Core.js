@@ -143,7 +143,7 @@ const MExt_vercode = "121043";
         }
     };
     unsafeWindow.MExt = MExt;
-    //unsafeWindow.dispatchEvent(new CustomEvent("MExtLoaded"));
+    unsafeWindow.dispatchEvent(new CustomEvent("MExtLoaded",{bubbles: true}));
     exportModule(selfMd);
 })();
 
@@ -155,27 +155,27 @@ const MExt_vercode = "121043";
             case "TBODY":
                 if (typeof r.target.id != "undefined") {
                     if (r.target.id.lastIndexOf("normalthread_") >= 0) {
-                        r.target.dispatchEvent(new CustomEvent("ThreadPreviewClosed"));
+                        r.target.dispatchEvent(new CustomEvent("ThreadPreviewClosed",{bubbles: true}));
                     }
                 }
                 break;
             case "DIV":
                 if (typeof r.target.id != 'undefined' && r.target.id.lastIndexOf("threadPreview_") >= 0) {
                     if (r.removedNodes[0].nodeName == "SPAN" && r.removedNodes[0].innerText == " 请稍候...") {
-                        r.target.dispatchEvent(new CustomEvent("ThreadPreviewOpened"));
+                        r.target.dispatchEvent(new CustomEvent("ThreadPreviewOpened",{bubbles: true}));
                     }
                 } else if (r.removedNodes.length >= 3 && r.target.id.lastIndexOf("post_") >= 0) {
                     if (r.removedNodes[0].nodeName == "A" && r.removedNodes[0].name == "newpost" && r.removedNodes[0].parentNode != null) {
-                        r.target.dispatchEvent(new CustomEvent("ThreadFlushStarted"));
+                        r.target.dispatchEvent(new CustomEvent("ThreadFlushStarted",{bubbles: true}));
                     }
                 } else if (r.target.id == "append_parent") {
                     if (r.removedNodes[0].nodeName == "DIV") {
                         if (r.removedNodes[0].id == "fwin_rate") {
-                            r.target.dispatchEvent(new CustomEvent("RateWindowClosed"));
+                            r.target.dispatchEvent(new CustomEvent("RateWindowClosed",{bubbles: true}));
                         } else if (r.removedNodes[0].id == "fwin_reply") {
-                            r.target.dispatchEvent(new CustomEvent("ReplyWindowClosed"));
+                            r.target.dispatchEvent(new CustomEvent("ReplyWindowClosed",{bubbles: true}));
                         } else if (typeof r.removedNodes[0].id != 'undefined' && r.removedNodes[0].id.lastIndexOf("fwin_miscreport") >= 0) {
-                            r.target.dispatchEvent(new CustomEvent("ReportWindowClosed"));
+                            r.target.dispatchEvent(new CustomEvent("ReportWindowClosed",{bubbles: true}));
                         }
                     }
                 }
@@ -188,25 +188,25 @@ const MExt_vercode = "121043";
                 if (typeof r.target.id != "undefined") {
                     if (r.target.id.lastIndexOf("threadPreview_") >= 0) {
                         if (r.addedNodes[0].nodeName == "SPAN" && r.addedNodes[0].innerText == " 请稍候...") {
-                            r.target.dispatchEvent(new CustomEvent("ThreadPreviewPreOpen"));
+                            r.target.dispatchEvent(new CustomEvent("ThreadPreviewPreOpen",{bubbles: true}));
                         }
                     } else if (r.addedNodes.length >= 3 && r.target.id.lastIndexOf("post_") >= 0) {
                         if (r.addedNodes[0].nodeName == "A" && r.addedNodes[0].name == "newpost" && r.addedNodes[0].parentNode != null) {
-                            r.target.dispatchEvent(new CustomEvent("ThreadFlushFinished"));
+                            r.target.dispatchEvent(new CustomEvent("ThreadFlushFinished",{bubbles: true}));
                         }
                     } else if (r.target.id == "append_parent") {
                         if (r.addedNodes[0].nodeName == "DIV") {
                             if (r.addedNodes[0].id == "fwin_rate") {
-                                r.addedNodes[0].dispatchEvent(new CustomEvent("RateWindowPreOpen"));
+                                r.addedNodes[0].dispatchEvent(new CustomEvent("RateWindowPreOpen",{bubbles: true}));
                             } else if (r.addedNodes[0].id == "fwin_reply") {
-                                r.addedNodes[0].dispatchEvent(new CustomEvent("ReplyWindowPreOpen"));
+                                r.addedNodes[0].dispatchEvent(new CustomEvent("ReplyWindowPreOpen",{bubbles: true}));
                             } else if (typeof r.addedNodes[0].id != 'undefined' && r.addedNodes[0].id.lastIndexOf("fwin_miscreport") >= 0) {
-                                r.addedNodes[0].dispatchEvent(new CustomEvent("ReportWindowPreOpen"));
+                                r.addedNodes[0].dispatchEvent(new CustomEvent("ReportWindowPreOpen",{bubbles: true}));
                             }
                         }
                     } else if (r.target.id === "") {
                         if (r.target.parentElement != null && r.target.parentElement == "postlistreply") {
-                            r.target.dispatchEvent(new CustomEvent("NewReplyAppended"));
+                            r.target.dispatchEvent(new CustomEvent("NewReplyAppended",{bubbles: true}));
                         }
                     }
                 }
@@ -214,21 +214,24 @@ const MExt_vercode = "121043";
             case "A":
                 if (r.addedNodes[0].nodeName == "#text" && typeof tid == "undefined") {
                     if (r.addedNodes[0].nodeValue == "正在加载, 请稍后...") {
-                        r.target.dispatchEvent(new CustomEvent("ThreadsListLoadStart"));
+                        r.target.dispatchEvent(new CustomEvent("ThreadsListLoadStart",{bubbles: true}));
                     } else if (r.addedNodes[0].nodeValue == "下一页 »") {
-                        r.target.dispatchEvent(new CustomEvent("ThreadsListLoadFinished"));
+                        r.target.dispatchEvent(new CustomEvent("ThreadsListLoadFinished",{bubbles: true}));
                     }
                 }
                 break;
             case "TD":
                 if (r.target.id == "fwin_content_rate" && r.addedNodes[0].nodeName == "DIV" && r.addedNodes[0].id == "floatlayout_topicadmin") {
-                    r.target.dispatchEvent(new CustomEvent("RateWindowOpened"));
+                    console.log(1);
+                    let Evt = new CustomEvent("RateWindowOpened",{bubbles: true})
+                    console.log(Evt);
+                    r.target.dispatchEvent(Evt);
                 }
                 if (r.target.id == "fwin_content_reply" && r.addedNodes[0].nodeName == "H3" && r.addedNodes[0].id == "fctrl_reply") {
-                    r.target.dispatchEvent(new CustomEvent("ReplyWindowOpened"));
+                    r.target.dispatchEvent(new CustomEvent("ReplyWindowOpened",{bubbles: true}));
                 }
                 if (typeof r.target.id != 'undefined' && r.target.id.lastIndexOf("fwin_content_miscreport") >= 0 && r.addedNodes[0].nodeName == "H3" && r.addedNodes[0].id.lastIndexOf("fctrl_miscreport") >= 0) {
-                    r.target.dispatchEvent(new CustomEvent("ReportWindowOpened"));
+                    r.target.dispatchEvent(new CustomEvent("ReportWindowOpened",{bubbles: true}));
                 }
                 break;
         }
@@ -260,7 +263,7 @@ const MExt_vercode = "121043";
             } else {
                 eval(recall);
             }
-            this.dispatchEvent(new CustomEvent("DiscuzAjaxPostFinished"));
+            this.dispatchEvent(new CustomEvent("DiscuzAjaxPostFinished",{bubbles: true}));
         }
         __ajaxpost(formid, showid, waitid, showidclass, submitbtn, relfunc);
     }
@@ -272,7 +275,7 @@ const MExt_vercode = "121043";
             } else {
                 eval(recall);
             }
-            this.dispatchEvent(new CustomEvent("DiscuzAjaxGetFinished"));
+            this.dispatchEvent(new CustomEvent("DiscuzAjaxGetFinished",{bubbles: true}));
         }
         __ajaxget(url, showid, waitid, loading, display, relfunc);
     }
@@ -486,3 +489,4 @@ const MExt_vercode = "121043";
     if(updateContent == "") return;
     unsafeWindow.showDialog("<b>模块已更新</b>" + updateContent, "right");
 })();
+
