@@ -222,10 +222,7 @@ const MExt_vercode = "121043";
                 break;
             case "TD":
                 if (r.target.id == "fwin_content_rate" && r.addedNodes[0].nodeName == "DIV" && r.addedNodes[0].id == "floatlayout_topicadmin") {
-                    console.log(1);
-                    let Evt = new CustomEvent("RateWindowOpened",{bubbles: true})
-                    console.log(Evt);
-                    r.target.dispatchEvent(Evt);
+                    r.target.dispatchEvent(new CustomEvent("RateWindowOpened",{bubbles: true}));
                 }
                 if (r.target.id == "fwin_content_reply" && r.addedNodes[0].nodeName == "H3" && r.addedNodes[0].id == "fctrl_reply") {
                     r.target.dispatchEvent(new CustomEvent("ReplyWindowOpened",{bubbles: true}));
