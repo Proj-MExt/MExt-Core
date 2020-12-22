@@ -1,34 +1,24 @@
 // ==UserScript==
 // @name         MCBBS Extender Core
-// @namespace    https://i.zapic.cc
-// @version      v2.0.3
+// @namespace    https://i.zapic.moe
+// @version      v2.1.0
 // @description  MCBBS模块化优化框架
 // @author       Zapic
 // @match        https://*.mcbbs.net/*
-// @run-at       document-body
+// @run-at       document-start
 // ==/UserScript==
 
 //Core
-const MExt_version = "2.0.3";
-const MExt_vercode = "121043";
+const MExt_version = "2.1.0";
+const MExt_vercode = "121140";
 (() => {
     //夹带私货
     console.log(" %c Zapic's Homepage %c https://i.zapic.cc ", "color: #ffffff; background: #E91E63; padding:5px;", "background: #000; padding:5px; color:#ffffff");
-    // jQuery检查
-    if (typeof jQuery == "undefined") {
-        console.error("This page does NOT contain JQuery,MCBBS Extender will not work.");
-        return;
-    }
-    //在手机页面主动禁用
-    if (document.getElementsByTagName('meta').viewport) {
-        console.log("MCBBS Extender not fully compatible with Moblie page,exit manually");
-        return;
-    }
     const selfMd = {
         "meta": {
             "id": "MExt_Core",
             "name": "MCBBS Extender Core Loader",
-            "version": "2.0.3",
+            "version": "2.1.0",
             "updateInfo":[]
         }
     }
@@ -122,13 +112,13 @@ const MExt_vercode = "121043";
             module.core();
         }
     }
-
     // 对外暴露API
     const MExt = {
         "exportModule": exportModule,
-        "jQuery": unsafeWindow.jQuery,
+        "jQuery": null,
         "configList": configList,
         "moduleList": moduleList,
+        "wait": ()=>{return new Promise(_ => { unsafeWindow.addEventListener("MExtLoaded", __ => { _(unsafeWindow.MExt) })})},
         "versionName": MExt_version,
         "versionCode": MExt_vercode,
         "Storage": {
@@ -143,13 +133,27 @@ const MExt_vercode = "121043";
         }
     };
     unsafeWindow.MExt = MExt;
-    unsafeWindow.dispatchEvent(new CustomEvent("MExtLoaded",{bubbles: true}));
-    exportModule(selfMd);
+    document.addEventListener("readystatechange",()=>{
+        if(document.readyState !== "interactive"){return;}
+        // jQuery检查
+        if (typeof unsafeWindow.jQuery == "undefined") {
+            console.error("This page does NOT contain jQuery,MCBBS Extender will not work.");
+            return;
+        }
+        //在手机页面主动禁用
+        if (document.getElementsByTagName('meta').viewport) {
+            console.log("MCBBS Extender not fully compatible with Moblie page,exit manually");
+            return;
+        }
+        MExt.jQuery = unsafeWindow.jQuery;
+        unsafeWindow.dispatchEvent(new CustomEvent("MExtLoaded",{bubbles: true}));
+        exportModule(selfMd);
+    });
 })();
 
 // Discuz UI Operate Event Dispatcher
 (async ()=>{
-    await new Promise(_ => { !unsafeWindow.MExt ? unsafeWindow.addEventListener("MExtLoaded", __ => { _(unsafeWindow.MExt) }) : _(unsafeWindow.MExt)});
+    if(!(await (unsafeWindow.MExt ? unsafeWindow.MExt.wait() : 0))){return;};
     const removeHandler = (r) => {
         switch (r.target.nodeName) {
             case "TBODY":
@@ -280,13 +284,14 @@ const MExt_vercode = "121043";
 
 // Config Panel
 (async () => {
-    const MExt = await new Promise(_ => { !unsafeWindow.MExt ? unsafeWindow.addEventListener("MExtLoaded", __ => { _(unsafeWindow.MExt) }) : _(unsafeWindow.MExt)});
+    const MExt = await (unsafeWindow.MExt ? unsafeWindow.MExt.wait() : 0);
+    if(!MExt){return;}
     const $ = MExt.jQuery;
     const Md = {
         "meta": {
             "id": "MExt_Config",
             "name": "MCBBS Extender 设置",
-            "version": "2.0.3",
+            "version": "2.1.0",
             "updateInfo": []
         },
         "style": `.conf_contain {
@@ -437,12 +442,13 @@ const MExt_vercode = "121043";
 
 // Update Manager
 (async () => {
-    const MExt = await new Promise(_ => { !unsafeWindow.MExt ? unsafeWindow.addEventListener("MExtLoaded", __ => { _(unsafeWindow.MExt) }) : _(unsafeWindow.MExt)});
+    const MExt = await (unsafeWindow.MExt ? unsafeWindow.MExt.wait() : 0);
+    if(!MExt){return;}
     MExt.exportModule({
         "meta": {
             "id": "MExt_updateManager",
             "name": "MCBBS Extender Update Manager",
-            "version": "2.0.3",
+            "version": "2.1.0",
             "updateInfo": []
         }
     });
@@ -468,22 +474,18 @@ const MExt_vercode = "121043";
     }finally {
         localStorage.setItem("MExt_UpdateMgr", JSON.stringify(MExt.moduleList));
     }
-    const compareVer = (b,a) => {
-        return [b,a][0] != [b,a].sort()[0];
-    }
     for (let m in MExt.moduleList ){
         if(typeof source[m] != "undefined" && typeof MExt.moduleList[m].version != "undefined"){
-            if(compareVer(MExt.moduleList[m].version,source[m].version)){
+            if(MExt.moduleList[m].version != source[m].version){
                 if(typeof MExt.moduleList[m].updateInfo !="undefined" && MExt.moduleList[m].updateInfo.length > 0){
                     updateContent += "<b>" + (typeof MExt.moduleList[m].name == "undefinded" ? MExt.moduleList[m].id : MExt.moduleList[m].name) + "</b> " + source[m].version + " &gt; " + MExt.moduleList[m].version + "<br>";
                     for(let info of MExt.moduleList[m].updateInfo){
-                        updateContent += info + "<br>"
+                        updateContent += info + "<hr>"
                     }
                 }
             }
         }
     }
     if(updateContent == "") return;
-    unsafeWindow.showDialog("<b>模块已更新</b>" + updateContent, "right");
+    unsafeWindow.showDialog("<b>模块已更新</b><hr>" + updateContent, "right");
 })();
-
